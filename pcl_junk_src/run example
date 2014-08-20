@@ -1,0 +1,2 @@
+./nearest_neighbors -k 7 -thresh 50 vfh_trainingset/000.580.67/1258730231333_cluster_0_nxyz_vfh.pcd
+
