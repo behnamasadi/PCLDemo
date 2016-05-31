@@ -36,7 +36,7 @@ MESSAGE("Number of Cores: " ${PROCESSOR_COUNT} )
 
 #include ('/home/behnam/usr/share/pcl-1.7/PCLConfig.cmake')
 
-find_package(PCL 1.6 REQUIRED COMPONENTS 
+find_package(PCL 1.7 REQUIRED COMPONENTS 
 common 
 io
 kdtree
@@ -81,17 +81,17 @@ include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
-find_package(HDF5 REQUIRED )
-add_definitions(${HDF5_DEFINITIONS})
-include_directories(${HDF5_INCLUDE_DIRS})
-link_directories(${HDF5_LIBRARIES})
+#find_package(HDF5 REQUIRED )
+#add_definitions(${HDF5_DEFINITIONS})
+#include_directories(${HDF5_INCLUDE_DIRS})
+#link_directories(${HDF5_LIBRARIES})
 
-MESSAGE("HDF5_INCLUDE_DIRS:" ${HDF5_INCLUDE_DIRS})
-MESSAGE("HDF5_LIBRARIES: " ${HDF5_LIBRARIES})
-MESSAGE("HDF5_DEFINITIONS: " ${HDF5_DEFINITIONS})
+#MESSAGE("HDF5_INCLUDE_DIRS:" ${HDF5_INCLUDE_DIRS})
+#MESSAGE("HDF5_LIBRARIES: " ${HDF5_LIBRARIES})
+#MESSAGE("HDF5_DEFINITIONS: " ${HDF5_DEFINITIONS})
 
-INCLUDE(cmake/FindFlann.cmake)
-include_directories(${FLANN_INCLUDE_DIRS})
+#INCLUDE(cmake/FindFlann.cmake)
+#include_directories(${FLANN_INCLUDE_DIRS})
 
 
 #target_link_libraries(BasicOperation ${PCL_LIBRARIES} )
@@ -99,18 +99,49 @@ include_directories(${FLANN_INCLUDE_DIRS})
 #TARGET_LINK_LIBRARIES( main  ${QT_LIBRARIES}  ${PCL_LIBRARIES}  )
 
 
-ADD_EXECUTABLE(build_tree pcl_junk_src/ClusterRecognitionand6DOFPoseEstimationusingVFHdescriptors/build_tree.cpp )
-TARGET_LINK_LIBRARIES( build_tree ${PCL_LIBRARIES} ${Boost_LIBRARIES} ${FLANN_LIBRARIES} ${HDF5_hdf5_LIBRARY} )
+#ADD_EXECUTABLE(build_tree pcl_junk_src/ClusterRecognitionand6DOFPoseEstimationusingVFHdescriptors/build_tree.cpp )
+#TARGET_LINK_LIBRARIES( build_tree ${PCL_LIBRARIES} ${Boost_LIBRARIES} ${FLANN_LIBRARIES} ${HDF5_hdf5_LIBRARY} )
 
 
-ADD_EXECUTABLE(nearest_neighbors pcl_junk_src/ClusterRecognitionand6DOFPoseEstimationusingVFHdescriptors/nearest_neighbors.cpp )
-TARGET_LINK_LIBRARIES( nearest_neighbors ${PCL_LIBRARIES} ${Boost_LIBRARIES} ${FLANN_LIBRARIES} ${HDF5_hdf5_LIBRARY} )
-
-
-
-ADD_EXECUTABLE(BasicOperation src/BasicOperation.cpp )
-TARGET_LINK_LIBRARIES( BasicOperation ${PCL_LIBRARIES} ${Boost_LIBRARIES} ${FLANN_LIBRARIES} ${HDF5_hdf5_LIBRARY} )
+#ADD_EXECUTABLE(nearest_neighbors pcl_junk_src/ClusterRecognitionand6DOFPoseEstimationusingVFHdescriptors/nearest_neighbors.cpp )
+#TARGET_LINK_LIBRARIES( nearest_neighbors ${PCL_LIBRARIES} ${Boost_LIBRARIES} ${FLANN_LIBRARIES} ${HDF5_hdf5_LIBRARY} )
 
 
 
+#ADD_EXECUTABLE(BasicOperation src/BasicOperation.cpp )
+#TARGET_LINK_LIBRARIES( BasicOperation ${PCL_LIBRARIES} ${Boost_LIBRARIES} ${FLANN_LIBRARIES} ${HDF5_hdf5_LIBRARY} )
 
+
+add_executable(random_sample_consensus src/random_sample_consensus.cpp)
+target_link_libraries(random_sample_consensus ${PCL_COMMON_LIBRARIES} ${PCL_IO_LIBRARIES}  ${PCL_SEARCH_LIBRARIES}  ${PCL_SAMPLE_CONSENSUS_LIBRARIES} ${PCL_FILTERS_LIBRARIES}   ${PCL_VISUALIZATION_LIBRARIES}  ${PCL_APPS_LIBRARIES})
+
+add_executable(reading_points src/reading_points.cpp)
+target_link_libraries(reading_points ${PCL_COMMON_LIBRARIES} ${PCL_IO_LIBRARIES}  ${PCL_SEARCH_LIBRARIES}  ${PCL_SAMPLE_CONSENSUS_LIBRARIES} ${PCL_FILTERS_LIBRARIES}   ${PCL_VISUALIZATION_LIBRARIES}  ${PCL_APPS_LIBRARIES})
+
+
+#add_executable(ground_based_rgbd_people_detection src/ground_based_rgbd_people_detection.cpp)
+#target_link_libraries(ground_based_rgbd_people_detection ${PCL_LIBRARIES} ${PCL_COMMON_LIBRARIES} ${PCL_IO_LIBRARIES}  ${PCL_SEARCH_LIBRARIES}  ${PCL_SAMPLE_CONSENSUS_LIBRARIES} ${PCL_FILTERS_LIBRARIES}   ${PCL_VISUALIZATION_LIBRARIES}  ${PCL_APPS_LIBRARIES})
+
+add_executable(pcd_viewer src/pcd_viewer.cpp)
+target_link_libraries(pcd_viewer ${PCL_COMMON_LIBRARIES} ${PCL_IO_LIBRARIES}     ${PCL_VISUALIZATION_LIBRARIES}  ${PCL_APPS_LIBRARIES})
+
+add_executable(correspondence_grouping src/correspondence_grouping.cpp)
+target_link_libraries(correspondence_grouping ${PCL_COMMON_LIBRARIES} ${PCL_IO_LIBRARIES}     ${PCL_VISUALIZATION_LIBRARIES}  ${PCL_APPS_LIBRARIES})
+
+add_executable(BasicOperation src/BasicOperation.cpp)
+target_link_libraries(BasicOperation ${PCL_COMMON_LIBRARIES} ${PCL_IO_LIBRARIES}  ${PCL_SEARCH_LIBRARIES}  ${PCL_SAMPLE_CONSENSUS_LIBRARIES} ${PCL_FILTERS_LIBRARIES}   ${PCL_VISUALIZATION_LIBRARIES}  ${PCL_APPS_LIBRARIES})
+
+
+
+#add_executable(pcd_organized_edge_detection src/pcd_organized_edge_detection.cpp)
+#target_link_libraries(pcd_organized_edge_detection ${PCL_COMMON_LIBRARIES} ${PCL_IO_LIBRARIES}  ${PCL_SEARCH_LIBRARIES}  ${PCL_SAMPLE_CONSENSUS_LIBRARIES} ${PCL_FILTERS_LIBRARIES}   ${PCL_VISUALIZATION_LIBRARIES}  ${PCL_APPS_LIBRARIES})
+
+
+
+add_executable(template_alignment src/template_alignment.cpp)
+target_link_libraries(template_alignment ${PCL_COMMON_LIBRARIES} ${PCL_IO_LIBRARIES}  ${PCL_SEARCH_LIBRARIES}  ${PCL_SAMPLE_CONSENSUS_LIBRARIES} ${PCL_FILTERS_LIBRARIES}   ${PCL_VISUALIZATION_LIBRARIES}  ${PCL_APPS_LIBRARIES})
+
+
+
+add_executable(tracking_object_in_real_time  src/tracking_object_in_real_time.cpp)
+target_link_libraries(tracking_object_in_real_time ${PCL_COMMON_LIBRARIES} ${PCL_IO_LIBRARIES}  ${PCL_SEARCH_LIBRARIES}  ${PCL_SAMPLE_CONSENSUS_LIBRARIES} ${PCL_FILTERS_LIBRARIES}   ${PCL_VISUALIZATION_LIBRARIES}  ${PCL_APPS_LIBRARIES})

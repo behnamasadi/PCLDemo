@@ -39,7 +39,7 @@
 
 #include <pcl/features/narf_descriptor.h>
 
-#include <pcl/keypoints/harris_keypoint3D.h>
+//#include <pcl/keypoints/harris_keypoint3D.h>
 
 #include <pcl/common/eigen.h>
 
@@ -123,7 +123,7 @@ template<typename PointT>
 void SimpleCloudViewer(boost::shared_ptr<pcl::PointCloud<PointT> > mycloud_ptr)
 {
 	pcl::visualization::CloudViewer myviewer("title:");
-	myviewer.showCloud( mycloud_ptr);
+    myviewer.showCloud( mycloud_ptr);
 	while(!myviewer.wasStopped() )
 	{
 	}
@@ -133,6 +133,7 @@ void SimpleCloudViewer_Test(const char ** argv)
 {
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudrgb_ptr(new pcl::PointCloud<pcl::PointXYZRGB>);
 	pcl::io::loadPCDFile(argv[1],*cloudrgb_ptr);
+    std::cout<<"Size of cloud is: " <<cloudrgb_ptr->size() <<std::endl;
 	SimpleCloudViewer<pcl::PointXYZRGB>(cloudrgb_ptr);
 }
 
@@ -472,22 +473,6 @@ void CreateRangeImage(boost::shared_ptr<pcl::PointCloud<PointT> > & pointCloud,p
 	  rangeImage.createFromPointCloud( *pointCloud, angular_resolution, maxAngleWidth, maxAngleHeight,scene_sensor_pose, coordinate_frame, noiseLevel, minRange, borderSize);
 }
 
-void setViewerPose (pcl::visualization::PCLVisualizer& viewer, const Eigen::Affine3f& viewer_pose)
-{
-  Eigen::Vector3f pos_vector = viewer_pose * Eigen::Vector3f(0, 0, 0);
-  Eigen::Vector3f look_at_vector = viewer_pose.rotation () * Eigen::Vector3f(0, 0, 1) + pos_vector;
-  Eigen::Vector3f up_vector = viewer_pose.rotation () * Eigen::Vector3f(0, -1, 0);
-  viewer.camera_.pos[0] = pos_vector[0];
-  viewer.camera_.pos[1] = pos_vector[1];
-  viewer.camera_.pos[2] = pos_vector[2];
-  viewer.camera_.focal[0] = look_at_vector[0];
-  viewer.camera_.focal[1] = look_at_vector[1];
-  viewer.camera_.focal[2] = look_at_vector[2];
-  viewer.camera_.view[0] = up_vector[0];
-  viewer.camera_.view[1] = up_vector[1];
-  viewer.camera_.view[2] = up_vector[2];
-  viewer.updateCamera();
-}
 
 template<typename PointT>
 void VisualizeRangeImage(pcl::RangeImage range_image, boost::shared_ptr<  pcl::PointCloud<PointT> > & point_cloud)
@@ -1468,65 +1453,7 @@ void Temp(const char ** argv)
 
 }
 
-void ExtractHarrisKeypoint(boost::shared_ptr< pcl::PointCloud<pcl::PointXYZRGB> > input_cloud,
-float radius_for_normal_estimation,
-float radius_for_determining_nearest_neighbors_used_for_key_point_detection,
-boost::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > &keypoints)
-{
-	cout << "keypoint detection..." << std::flush;
-	boost::shared_ptr< pcl::HarrisKeypoint3D<pcl::PointXYZRGB,pcl::PointXYZI> >  harris3D ( new pcl::HarrisKeypoint3D<pcl::PointXYZRGB,pcl::PointXYZI> (pcl::HarrisKeypoint3D<pcl::PointXYZRGB,pcl::PointXYZI>::HARRIS));
-	harris3D->setNonMaxSupression(true);
-//	Set the radius for normal estimation and non maxima supression.
-	harris3D->setRadius (radius_for_normal_estimation);
-//	sphere radius that is to be used for determining the nearest neighbors used for the  key point detection.
-//	radius the sphere radius used as the maximum distance to consider a point a neighbor.
-	harris3D->setRadiusSearch (radius_for_determining_nearest_neighbors_used_for_key_point_detection);
-	harris3D->setMethod(pcl::HarrisKeypoint3D<pcl::PointXYZRGB,pcl::PointXYZI>::HARRIS);
-	harris3D->setInputCloud(input_cloud);
-	harris3D->compute(*keypoints);
-	harris3D->setSearchSurface(input_cloud);
-	cout << "OK. keypoints found: " << keypoints->points.size() << endl;
-}
 
-void ExtractHarrisKeypoint_Test(const char ** argv)
-{
-
-	std::string filename = argv[1];
-	std::cout << "Reading " << filename << std::endl;
-	pcl::PointCloud<pcl::PointXYZRGB>::Ptr input_cloud (new pcl::PointCloud<pcl::PointXYZRGB>);
-	if(pcl::io::loadPCDFile<pcl::PointXYZRGB> (filename, *input_cloud) == -1) // load the file
-	{
-		PCL_ERROR ("Couldn't read file");
-		return ;
-	}
-//	Parameters for harris keypoint  computation
-	float radius_for_normal_estimation=0.01;
-	float radius_for_determining_nearest_neighbors_used_for_key_point_detection=0.01;
-	boost::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > keypoints(new  pcl::PointCloud<pcl::PointXYZI> );
-
-
-	ExtractHarrisKeypoint( input_cloud, radius_for_normal_estimation,radius_for_determining_nearest_neighbors_used_for_key_point_detection,keypoints);
-
-//	Copying the pointwithscale to pointxyz so as visualize the cloud
-	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_temp (new pcl::PointCloud<pcl::PointXYZRGB>);
-	copyPointCloud(*keypoints, *cloud_temp);
-
-
-	// Visualization of keypoints along with the original cloud
-	pcl::visualization::PCLVisualizer viewer("PCL Viewer");
-	pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZRGB> keypoints_color_handler (cloud_temp, 0, 255, 0);
-	pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZRGB> cloud_color_handler (input_cloud, 255, 255, 0);
-	viewer.setBackgroundColor( 0.0, 0.0, 0.0 );
-	viewer.addPointCloud(input_cloud, "cloud");
-	viewer.addPointCloud(cloud_temp, keypoints_color_handler, "keypoints");
-//	viewer.setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 7, "keypoints");
-	while(!viewer.wasStopped ())
-	{
-		viewer.spinOnce ();
-	}
-
-	return;
-}
 
 template <typename PointT>
 void VisualizeCorrespondencesHarris(
@@ -1699,8 +1626,8 @@ void HarrisCorrespondencesDemo(const char **argv)
 	float radius_for_determining_nearest_neighbors_used_for_key_point_detection=0.01;
 	boost::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > keypoints1(new  pcl::PointCloud<pcl::PointXYZI>);
 	boost::shared_ptr< pcl::PointCloud<pcl::PointXYZI> > keypoints2(new  pcl::PointCloud<pcl::PointXYZI>);
-	ExtractHarrisKeypoint(points1,radius_for_normal_estimation,radius_for_determining_nearest_neighbors_used_for_key_point_detection,keypoints1);
-	ExtractHarrisKeypoint(points2,radius_for_normal_estimation,radius_for_determining_nearest_neighbors_used_for_key_point_detection,keypoints2);
+//	ExtractHarrisKeypoint(points1,radius_for_normal_estimation,radius_for_determining_nearest_neighbors_used_for_key_point_detection,keypoints1);
+//	ExtractHarrisKeypoint(points2,radius_for_normal_estimation,radius_for_determining_nearest_neighbors_used_for_key_point_detection,keypoints2);
 
 
 //	Compute PFH features
@@ -1959,11 +1886,13 @@ int main (int argc, const char ** argv)
 
 //	PFH_Test<pcl::PointXYZRGB >(argv);
 
-	CorrespondencesDemo(argv);
+//	CorrespondencesDemo(argv);
 
 //	HarrisCorrespondencesDemo(argv);
 
 //	ReadingPLYPointCloud_Tes( argv);
+
+    SimpleCloudViewer_Test(argv);
 
 	return 0;
 }
